@@ -37,12 +37,12 @@ const rockFragmentYields = {
 };
 const laserStats = {
     "laser-1d-ml": { draw: 1.5, frag_sec: 0.1417 },
-    "laser-1d-lance": { draw: 0.7, frag_sec: 0.1700 },
+    "laser-1d-lance": { draw: 1.75, frag_sec: 0.1700 },
     "laser-1d-modd": { draw: 0.75, frag_sec: 0.1417 },
     "laser-2d-ml": { draw: 3.0, frag_sec: 0.4183 }
 };
 let customPDStats = null;
-let resultSpans = {}; // Declare globally, define later
+let resultSpans = {};
 
 function populateSelect(elementId, options, defaultSelection) {
     const select = document.getElementById(elementId);
@@ -65,7 +65,6 @@ function populateNumberSelect(elementId, max, defaultSelection = 0) {
 
 function updateCalculator(event) {
     const pdControlIds = ['pd-size', 'pd-grade', 'eng-type', 'eng-grade', 'exp-effect'];
-    // FIX: Check if event exists before trying to access its properties
     if (event && pdControlIds.includes(event.target.id)) {
         customPDStats = null;
         if (document.getElementById('eng-type').value === 'Imported') {
@@ -158,7 +157,7 @@ function handleImport() {
     const refineryAlert = document.getElementById('refinery-alert');
     if (!importText) { alert("Please paste EDSY SLEF export text first."); return; }
     
-    refineryAlert.style.display = 'none';
+    if (refineryAlert) refineryAlert.style.display = 'none';
     customPDStats = null;
     
     try {
@@ -214,7 +213,7 @@ function handleImport() {
             }
         });
 
-        if (!hasRefinery) {
+        if (!hasRefinery && refineryAlert) {
             refineryAlert.style.display = 'block';
         }
 
