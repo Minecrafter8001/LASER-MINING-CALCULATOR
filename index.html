@@ -53,6 +53,75 @@
             margin-bottom: 15px;
             border: 1px solid #ff9f3b;
         }
+#export-popup {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+#export-popup-content {
+  background: #0d0d0d;
+  color: #ff9f3b;
+  font-family: monospace;
+  padding: 20px 30px 30px 30px;
+  border-radius: 10px;
+  width: 600px;        /* fixed width */
+  max-width: 90vw;     /* responsive max width */
+  height: auto;        /* auto height to fit content */
+  max-height: 90vh;    /* limit max height to viewport */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 0 15px #ff9f3bcc;
+}
+
+#export-popup-close {
+    scale: 1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(10%, -10%);
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: none;
+  color: #ff9f3b;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+  padding: 1px;
+  transition: color 0.3s ease;
+}
+
+#export-popup-close:hover {
+  color: #fff;
+}
+#export-popup textarea {
+  background: #222;
+  padding: 10px;
+  border: 1px solid #ff9f3b;
+  color: #ff9f3b;
+  font-size: 1em;
+  resize: none;
+  width: 100%;           /* full width */
+  height: auto;          /* auto height */
+  min-height: 200px;
+  max-height: 800px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  font-family: monospace;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
     </style>
 </head>
 <body>
@@ -140,6 +209,17 @@
         <p>&gt; Has <span id="total-limpets-result-final">--</span> active limpets to collect ~ <span id="fragments-per-rock-final">--</span> fragments</p>
         <p>&gt; PD had margin for <span id="margin-fragments">--</span> additional fragments before empty</p>
     </div>
+        <div class="button-group">
+        <button id="export-btn">Export Stats</button>  <!-- Add this -->
+    </div>
+    <div id="export-popup" style="display: none;">
+  <div id="export-popup-content">
+    <button id="export-popup-close" aria-label="Close export popup">✖</button>
+    <textarea readonly></textarea>
+  </div>
+</div>
+
+
 
     <div class="footer-note">DON'T FORGET YOUR LIMPETS</div>
 

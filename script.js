@@ -343,6 +343,59 @@ function handleCoriolisImport() {
     }
 }
 
+function exportStats() {
+    // (same code to gather exportText)
+    const pdSize = document.getElementById('pd-size').value;
+    const pdGrade = document.getElementById('pd-grade').value;
+    const engType = document.getElementById('eng-type').value;
+    const engGrade = document.getElementById('eng-grade').value;
+    const expEffect = document.getElementById('exp-effect').value;
+    const totalLimpets = document.getElementById('total-limpets-result').textContent;
+    const fragmentsPerRock = document.getElementById('fragments-per-rock').textContent;
+    const totalDraw = document.getElementById('total-draw-result').textContent;
+    const fragGen = document.getElementById('frag-gen-result').textContent;
+    const depletionPercent = document.getElementById('depletion-percent').textContent;
+    const depletionTime = document.getElementById('depletion-time').textContent;
+    const marginFragments = document.getElementById('margin-fragments').textContent;
+    const cap = document.getElementById('wep-cap-result').textContent;
+    const recharge = document.getElementById('wep-recharge-result').textContent;
+
+    const pdType = engType === "Imported" ? "Imported" : `Grade ${engGrade}`;
+    
+    const exportText = `
+Power Distributor:
+  Capacity: ${cap}
+  Recharge Rate: ${recharge}
+  Size: ${pdSize}
+  Grade: ${pdGrade}
+  Engineering: ${pdType}
+  Experimental Effect: ${expEffect}
+
+Mining Setup:
+  Total Limpets: ${totalLimpets}
+  Fragments per Rock: ${fragmentsPerRock}
+  Total Power Draw: ${totalDraw}
+  Fragment Generation Rate: ${fragGen}
+
+Depletion Estimates:
+  Depletion %: ${depletionPercent}%
+  Time to Depletion: ${depletionTime} seconds
+  PD Fragment Margin: ${marginFragments}
+`.trim();
+
+    const popup = document.getElementById('export-popup');
+    const textarea = popup.querySelector('textarea');
+    textarea.value = exportText;
+
+    popup.style.display = 'flex';
+
+    textarea.focus();
+    textarea.select();
+}
+
+
+
+
 
 function setupEventListeners() {
     document.getElementById('toggle-import-btn').addEventListener('click', () => {
@@ -391,7 +444,15 @@ function setupEventListeners() {
 
     document.getElementById('import-btn').addEventListener('click', handleImport);
     document.getElementById('import-btn-cor').addEventListener('click', handleCoriolisImport);
+    document.getElementById('export-btn').addEventListener('click', exportStats);
+    document.getElementById('export-popup-close').addEventListener('click', () => {
+        document.getElementById('export-popup').style.display = 'none';
+    });
+
+
 }
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
     resultSpans = {
