@@ -5,86 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laser Mining Calculator</title>
     <style>
-        body { 
-            font-family: monospace; 
-            background-color: #0d0d0d; 
-            color: #ff9f3b; 
-            max-width: 900px; 
-            margin: auto;
-            padding: 10px;
-        }
-        .section { 
-            border: 1px solid #ff9f3b; 
-            padding: 15px; 
-            margin-bottom: 20px; 
-        }
-        .section h2 { 
-            margin-top: 0; 
-            color: #ffc439; 
-            text-align: center; 
-            border-bottom: 1px solid #ff9f3b;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
-            gap: 15px; 
-        }
-        .grid-item { 
-            display: flex; 
-            flex-direction: column; 
-        }
-        label { 
-            margin-bottom: 5px; 
-            font-size: 0.9em; 
-        }
-        select { 
-            width: 100%; 
-            background-color: #333; 
-            color: #ff9f3b; 
-            border: 1px solid #ff9f3b; 
-            padding: 8px; 
-            box-sizing: border-box; 
-        }
-        .results-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); 
-            gap: 10px; 
-            margin-bottom: 20px; 
-        }
-        .pd-display { 
-            border: 1px solid #ff9f3b; 
-            padding: 10px; 
-            text-align: center; 
-        }
-        .pd-display .value { 
-            font-size: 1.5em; 
-            font-weight: bold; 
-            color: #fff; 
-        }
-        .pd-display .label { 
-            font-size: 0.8em; 
-            text-transform: uppercase;
-        }
-        .total-display { 
-            text-align: center; 
-            padding: 10px; 
-        }
-        .final-results p { 
-            font-size: 1.2em;
-            margin: 10px 0; 
-        }
-        .final-results span { 
-            color: #fff; 
-            font-weight: bold; 
-        }
+        body { font-family: monospace; background-color: #0d0d0d; color: #ff9f3b; max-width: 900px; margin: auto; padding: 10px; }
+        .section { border: 1px solid #ff9f3b; padding: 15px; margin-bottom: 20px; }
+        .section h2 { margin-top: 0; color: #ffc439; text-align: center; border-bottom: 1px solid #ff9f3b; padding-bottom: 10px; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .grid-item { display: flex; flex-direction: column; }
+        label { margin-bottom: 5px; font-size: 0.9em; }
+        select, textarea, button { width: 100%; background-color: #333; color: #ff9f3b; border: 1px solid #ff9f3b; padding: 8px; box-sizing: border-box; }
+        textarea { height: 40px; resize: vertical; } /* Reduced height */
+        button { cursor: pointer; font-weight: bold; color: #ffc439; margin-top: 10px;}
+        button:hover { background-color: #444; }
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .pd-display { border: 1px solid #ff9f3b; padding: 10px; text-align: center; }
+        .pd-display .value { font-size: 1.5em; font-weight: bold; color: #fff; }
+        .pd-display .label { font-size: 0.8em; text-transform: uppercase; }
+        .total-display { text-align: center; padding: 10px; }
+        .final-results p { font-size: 1.2em; margin: 10px 0; }
+        .final-results span { color: #fff; font-weight: bold; }
+        #pd-status { font-size: 0.8em; color: #11dabd; margin-left: 10px; }
     </style>
 </head>
 <body>
 
     <div class="section">
-        <h2>POWER DISTRIBUTOR</h2>
+        <h2>Import EDSY Build</h2>
+        <textarea id="import-text" placeholder="Paste SLEF export text here..."></textarea>
+        <button id="import-btn">Import</button>
+    </div>
+
+    <div class="section">
+        <h2>POWER DISTRIBUTOR <span id="pd-status"></span></h2>
         <div class="grid">
             <div class="grid-item"><label>Size</label><select id="pd-size"></select></div>
             <div class="grid-item"><label>Grade</label><select id="pd-grade"></select></div>
@@ -95,18 +45,9 @@
     </div>
 
     <div class="results-grid">
-        <div class="pd-display">
-            <div id="wep-cap-result" class="value">--</div>
-            <div class="label">PD CAPACITY</div>
-        </div>
-        <div class="pd-display">
-            <div id="wep-recharge-result" class="value">--</div>
-            <div class="label">PD RECHARGE</div>
-        </div>
-        <div class="pd-display">
-            <div id="total-draw-result" class="value">--</div>
-            <div class="label">TOTAL LASER DRAW</div>
-        </div>
+        <div class="pd-display"><div id="wep-cap-result" class="value">--</div><div class="label">PD CAPACITY</div></div>
+        <div class="pd-display"><div id="wep-recharge-result" class="value">--</div><div class="label">PD RECHARGE</div></div>
+        <div class="pd-display"><div id="total-draw-result" class="value">--</div><div class="label">TOTAL LASER DRAW</div></div>
     </div>
     
     <div class="section">
@@ -136,12 +77,13 @@
             <div class="grid-item"><label>3C Multi-Limpet</label><select class="exclusive-collector collector-select" id="collector-3c-multi"></select></div>
             <div class="grid-item"><label>7A Universal</label><select class="exclusive-collector collector-select" id="collector-7a-uni"></select></div>
         </div>
+        <div class="total-display"><h3>Total Active Limpets: <span id="total-limpets-result">--</span></h3></div>
     </div>
-
+    
     <div class="section final-results">
         <h2>RESULTS</h2>
         <p>&gt; Depletes asteroids <span id="depletion-percent">--</span>% in continuous operation for <span id="depletion-time">--</span>s</p>
-        <p>&gt; Has <span id="total-limpets-result">--</span> active limpets to collect ~ <span id="fragments-per-rock">--</span> fragments</p>
+        <p>&gt; Has <span id="total-limpets-result-2">--</span> active limpets to collect ~ <span id="fragments-per-rock">--</span> fragments</p>
         <p>&gt; PD had margin for <span id="margin-fragments">--</span> additional fragments before empty</p>
     </div>
 
