@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     populateSelect('eng-grade', ['0', '1', '2', '3', '4', '5']);
     populateSelect('exp-effect', ['None', 'Cluster Capacitors', 'Super Conduits']);
     populateSelect('zone-select', ['NoRES', 'LoRES', 'RES', 'HiRES', 'HzRES']);
-    populateSelect('probe-select', ['YES', 'NO'], 'YES');
+    populateSelect('prospector-select', ['YES', 'NO'], 'YES'); // Corrected from probe-select
     populateNumberSelect('laser-1d-ml', 10);
     populateNumberSelect('laser-1d-lance', 10);
     populateNumberSelect('laser-1d-modd', 10);
@@ -138,7 +138,7 @@ function updateCalculator() {
         totalLimpets += (parseInt(select.value) || 0) * (collectorLimpets[select.id] || 0);
     });
 
-    const fragmentYield = rockFragmentYields[document.getElementById('probe-select').value]?.[document.getElementById('zone-select').value] || 0;
+    const fragmentYield = rockFragmentYields[document.getElementById('prospector-select').value]?.[document.getElementById('zone-select').value] || 0;
     
     let totalDraw = 0;
     let totalFragGen = 0;
@@ -159,13 +159,11 @@ function updateCalculator() {
     let depletionPercent, depletionTime, marginFragments;
     
     if (timeToEmptyPD >= timeToDepleteRock) {
-        // Can deplete the rock fully
         depletionPercent = 100;
         depletionTime = Math.round(timeToDepleteRock);
         const remainingPDTime = timeToEmptyPD - timeToDepleteRock;
         marginFragments = Math.floor(remainingPDTime * totalFragGen);
     } else {
-        // Cannot deplete the rock, runs out of power
         depletionTime = Math.round(timeToEmptyPD);
         depletionPercent = Math.round((timeToEmptyPD / timeToDepleteRock) * 100);
         marginFragments = 0;
@@ -213,4 +211,9 @@ function setupEventListeners() {
         select.addEventListener('change', updateCalculator);
     });
 }
-setupEventListeners();
+
+// --- Initial Execution ---
+document.addEventListener('DOMContentLoaded', () => {
+    // This function will now run only after the DOM is fully loaded.
+    setupEventListeners();
+});
