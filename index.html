@@ -12,10 +12,8 @@
             color: #ffc439; 
             text-align: center; 
             border-bottom: 1px solid #ff9f3b; 
-            /* Slimmer header style */
             padding-bottom: 5px; 
             margin-bottom: 15px; 
-            /* Uppercase text */
             text-transform: uppercase;
         }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
@@ -32,13 +30,34 @@
         .pd-display .value { font-size: 1.5em; font-weight: bold; color: #fff; }
         .pd-display .label { font-size: 0.8em; text-transform: uppercase; }
         .total-display { text-align: center; padding: 10px; }
-        .final-results p { font-size: 1.2em; margin: 10px 0; }
+        .final-results p { 
+            font-size: 1.4em;
+            margin: 12px 0; 
+        }
         .final-results span { color: #fff; font-weight: bold; }
         #pd-status { font-size: 0.8em; color: #11dabd; margin-left: 10px; }
         .message-box { text-align: center; font-size: 1.5em; padding: 20px; color: #fff; }
+        .footer-note {
+            text-align: center;
+            font-weight: bold;
+            color: #ffc439;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        .alert-box { 
+            display: none;
+            background-color: #8B0000;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ff9f3b;
+        }
     </style>
 </head>
 <body>
+
+    <div id="refinery-alert" class="alert-box">No refinery detected in build!</div>
 
     <div class="button-group">
         <button id="toggle-import-btn">EDSY Import</button>
@@ -77,6 +96,12 @@
             <div class="grid-item"><label>Zone?</label><select id="zone-select"></select></div>
             <div class="grid-item"><label>Prospector?</label><select id="prospector-select"></select></div>
         </div>
+        <div class="results-grid" style="margin-top: 15px;">
+             <div class="pd-display">
+                <div id="fragments-per-rock" class="value">--</div>
+                <div class="label">FRAGMENTS / ROCK</div>
+            </div>
+        </div>
     </div>
 
     <div class="section">
@@ -87,11 +112,17 @@
             <div class="grid-item"><label>1D Modifed (LR+IR)</label><select class="laser-select" id="laser-1d-modd"></select></div>
             <div class="grid-item"><label>2D ML</label><select class="laser-select" id="laser-2d-ml"></select></div>
         </div>
+        <div class="results-grid" style="margin-top: 15px;">
+             <div class="pd-display">
+                <div id="frag-gen-result" class="value">--</div>
+                <div class="label">FRAG GEN / SEC</div>
+            </div>
+        </div>
     </div>
     
     <div class="section">
         <h2>COLLECTORS</h2>
-        <div class="grid">
+        <div class="grid" style="grid-template-columns: repeat(6, 1fr);">
             <div class="grid-item"><label>1D</label><select class="collector-select" id="collector-1d"></select></div>
             <div class="grid-item"><label>3D</label><select class="collector-select" id="collector-3d"></select></div>
             <div class="grid-item"><label>5D</label><select class="collector-select" id="collector-5d"></select></div>
@@ -105,9 +136,11 @@
     <div class="section final-results">
         <h2>RESULTS</h2>
         <p>&gt; Depletes asteroids <span id="depletion-percent">--</span>% in continuous operation for <span id="depletion-time">--</span>s</p>
-        <p>&gt; Has <span id="total-limpets-result-final">--</span> active limpets to collect ~ <span id="fragments-per-rock">--</span> fragments</p>
+        <p>&gt; Has <span id="total-limpets-result-final">--</span> active limpets to collect ~ <span id="fragments-per-rock-final">--</span> fragments</p>
         <p>&gt; PD had margin for <span id="margin-fragments">--</span> additional fragments before empty</p>
     </div>
+
+    <div class="footer-note">DON'T FORGET YOUR LIMPETS</div>
 
     <script src="script.js"></script>
 
