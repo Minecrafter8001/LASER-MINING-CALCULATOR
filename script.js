@@ -423,7 +423,12 @@ function importMenu(input) {
             // Switching between modes - fade out first
             importSection.classList.remove('visible');
             setTimeout(() => {
-                importText.placeholder = text[input];
+
+                if (input === "coriolis" && Math.random() < 0.01) {
+                    importText.placeholder = "Stop it... get some help";
+                }else {
+                    importText.placeholder = text[input];
+                }
                 importSection.classList.add('visible');
             }, 300);
         }
