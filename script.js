@@ -19,7 +19,8 @@ const engineeringMods = {
         "1": { cap_mod: 0.99, recharge_mod: 1.09 }, "2": { cap_mod: 0.98, recharge_mod: 1.18 },
         "3": { cap_mod: 0.97, recharge_mod: 1.27 }, "4": { cap_mod: 0.96, recharge_mod: 1.36 },
         "5": { cap_mod: 0.95, recharge_mod: 1.45 }
-    }
+    },
+    "Imported": { "0": { cap_mod: 1.0, recharge_mod: 1.0 } } // Renamed from Custom
 };
 const experimentalEffectMods = {
     "None":               { cap_mod: 1.0,  recharge_mod: 1.0 },
@@ -40,8 +41,8 @@ const laserStats = {
     "laser-1d-modd": { draw: 0.75, frag_sec: 0.1417 },
     "laser-2d-ml": { draw: 3.0, frag_sec: 0.4183 }
 };
+let customPDStats = null;
 
-// --- Helper function to populate dropdowns ---
 function populateSelect(elementId, options, defaultSelection) {
     const select = document.getElementById(elementId);
     if (!select) return;
@@ -61,103 +62,80 @@ function populateNumberSelect(elementId, max, defaultSelection = 0) {
     populateSelect(elementId, options, defaultSelection);
 }
 
-// --- Populate all dropdowns on page load ---
-document.addEventListener('DOMContentLoaded', () => {
-    populateSelect('pd-size', [1, 2, 3, 4, 5, 6, 7, 8], 7);
-    populateSelect('pd-grade', ['E', 'D', 'C', 'B', 'A', 'A Guardian'], 'A');
-    populateSelect('eng-type', ['None', 'Weapons Focused', 'Charge Enhanced']);
-    populateSelect('eng-grade', ['0', '1', '2', '3', '4', '5']);
-    populateSelect('exp-effect', ['None', 'Cluster Capacitors', 'Super Conduits']);
-    populateSelect('zone-select', ['NoRES', 'LoRES', 'RES', 'HiRES', 'HzRES']);
-    populateSelect('prospector-select', ['YES', 'NO'], 'YES'); // Corrected from probe-select
-    populateNumberSelect('laser-1d-ml', 10);
-    populateNumberSelect('laser-1d-lance', 10);
-    populateNumberSelect('laser-1d-modd', 10);
-    populateNumberSelect('laser-2d-ml', 7);
-    populateNumberSelect('collector-1d', 10);
-    populateNumberSelect('collector-3d', 10);
-    populateNumberSelect('collector-5d', 7);
-    populateNumberSelect('collector-7d', 3);
-    populateNumberSelect('collector-3c-multi', 1);
-    populateNumberSelect('collector-7a-uni', 1);
-    updateCalculator();
-});
-
-// --- Get references to elements ---
 const resultSpans = {
-    cap: document.getElementById('wep-cap-result'),
-    recharge: document.getElementById('wep-recharge-result'),
+    cap: document.getElementById('wep-cap-result'), recharge: document.getElementById('wep-recharge-result'),
     totalLimpets: document.getElementById('total-limpets-result'),
-    fragmentsPerRock: document.getElementById('fragments-per-rock'),
-    totalDraw: document.getElementById('total-draw-result'),
-    depletionPercent: document.getElementById('depletion-percent'),
-    depletionTime: document.getElementById('depletion-time'),
-    marginFragments: document.getElementById('margin-fragments')
+    fragmentsPerRock: document.getElementById('fragments-per-rock'), totalDraw: document.getElementById('total-draw-result'),
+    depletionPercent: document.getElementById('depletion-percent'), depletionTime: document.getElementById('depletion-time'),
+    marginFragments: document.getElementById('margin-fragments'), pdStatus: document.getElementById('pd-status')
 };
 
-function updateCalculator() {
-    // --- GATHER ALL INPUTS ---
-    const pdSize = document.getElementById('pd-size').value;
-    const pdGrade = document.getElementById('pd-grade').value;
-    let engType = document.getElementById('eng-type').value;
-    let engGrade = document.getElementById('eng-grade').value;
-    let effect = document.getElementById('exp-effect').value;
-
-    if (engType === "None") {
-        document.getElementById('eng-grade').value = "0";
-        document.getElementById('exp-effect').value = "None";
-        document.getElementById('eng-grade').disabled = true;
-        document.getElementById('exp-effect').disabled = true;
-        engGrade = "0";
-        effect = "None";
-    } else {
-        document.getElementById('eng-grade').disabled = false;
-        document.getElementById('exp-effect').disabled = false;
-        if(engGrade === "0") {
-            engGrade = "1";
-            document.getElementById('eng-grade').value = "1";
+function updateCalculator(event) {
+    // --- NEW: Logic to revert from imported stats on manual change ---
+    const pdControlIds = ['pd-size', 'pd-grade', 'eng-type', 'eng-grade', 'exp-effect'];
+    if (event && pdControlIds.includes(event.target.id)) {
+        customPDStats = null;
+        if (document.getElementById('eng-type').value === 'Imported') {
+            document.getElementById('eng-type').value = 'None';
         }
     }
 
-    // --- CALCULATE INTERMEDIATE VALUES ---
-    const baseStats = powerDistributorStats[pdSize]?.[pdGrade];
-    const engMod = engineeringMods[engType]?.[engGrade];
-    const effectMod = experimentalEffectMods[effect];
-
-    let finalCapacity = 0;
-    let finalRecharge = 0;
-    if (baseStats && engMod && effectMod) {
-        const engineeredCapacity = parseFloat((baseStats.cap * engMod.cap_mod).toFixed(3));
-        const engineeredRecharge = parseFloat((baseStats.recharge * engMod.recharge_mod).toFixed(3));
-        finalCapacity = engineeredCapacity * effectMod.cap_mod;
-        finalRecharge = engineeredRecharge * effectMod.recharge_mod;
+    let finalCapacity = 0, finalRecharge = 0;
+    resultSpans.pdStatus.textContent = '';
+    
+    if (customPDStats) {
+        finalCapacity = customPDStats.cap;
+        finalRecharge = customPDStats.recharge;
+        resultSpans.pdStatus.textContent = '(Imported)';
+    } else {
+        const pdSize = document.getElementById('pd-size').value;
+        const pdGrade = document.getElementById('pd-grade').value;
+        let engType = document.getElementById('eng-type').value;
+        let engGrade = document.getElementById('eng-grade').value;
+        let effect = document.getElementById('exp-effect').value;
+        if (engType === "None" || engType === "Imported") {
+            if (engType === "None") {
+                 document.getElementById('exp-effect').value = "None";
+                 effect = "None";
+            }
+            document.getElementById('eng-grade').value = "0";
+            document.getElementById('eng-grade').disabled = true;
+            document.getElementById('exp-effect').disabled = true;
+            engGrade = "0";
+        } else {
+            document.getElementById('eng-grade').disabled = false;
+            document.getElementById('exp-effect').disabled = false;
+            if(engGrade === "0") { engGrade = "1"; document.getElementById('eng-grade').value = "1"; }
+        }
+        const baseStats = powerDistributorStats[pdSize]?.[pdGrade];
+        const engMod = engineeringMods[engType]?.[engGrade];
+        const effectMod = experimentalEffectMods[effect];
+        if (baseStats && engMod && effectMod) {
+            const engineeredCapacity = parseFloat((baseStats.cap * engMod.cap_mod).toFixed(3));
+            const engineeredRecharge = parseFloat((baseStats.recharge * engMod.recharge_mod).toFixed(3));
+            finalCapacity = engineeredCapacity * effectMod.cap_mod;
+            finalRecharge = engineeredRecharge * effectMod.recharge_mod;
+        }
     }
-
+    
     let totalLimpets = 0;
     document.querySelectorAll('.collector-select').forEach(select => {
         totalLimpets += (parseInt(select.value) || 0) * (collectorLimpets[select.id] || 0);
     });
-
     const fragmentYield = rockFragmentYields[document.getElementById('prospector-select').value]?.[document.getElementById('zone-select').value] || 0;
     
-    let totalDraw = 0;
-    let totalFragGen = 0;
+    let totalDraw = 0, totalFragGen = 0;
     document.querySelectorAll('.laser-select').forEach(select => {
         const quantity = parseInt(select.value) || 0;
         const stats = laserStats[select.id];
-        if (stats) {
-            totalDraw += quantity * stats.draw;
-            totalFragGen += quantity * stats.frag_sec;
-        }
+        if (stats) { totalDraw += quantity * stats.draw; totalFragGen += quantity * stats.frag_sec; }
     });
-
-    // --- FINAL CALCULATIONS ---
+    
     const timeToDepleteRock = totalFragGen > 0 ? fragmentYield / totalFragGen : Infinity;
     const netDraw = totalDraw - finalRecharge;
     const timeToEmptyPD = netDraw > 0 ? finalCapacity / netDraw : Infinity;
     
     let depletionPercent, depletionTime, marginFragments;
-    
     if (timeToEmptyPD >= timeToDepleteRock) {
         depletionPercent = 100;
         depletionTime = Math.round(timeToDepleteRock);
@@ -165,11 +143,10 @@ function updateCalculator() {
         marginFragments = Math.floor(remainingPDTime * totalFragGen);
     } else {
         depletionTime = Math.round(timeToEmptyPD);
-        depletionPercent = Math.round((timeToEmptyPD / timeToDepleteRock) * 100);
+        depletionPercent = totalFragGen > 0 ? Math.round((timeToEmptyPD / timeToDepleteRock) * 100) : 0;
         marginFragments = 0;
     }
-
-    // --- UPDATE DISPLAY ---
+    
     resultSpans.cap.textContent = finalCapacity.toFixed(3);
     resultSpans.recharge.textContent = finalRecharge.toFixed(3);
     resultSpans.totalLimpets.textContent = totalLimpets;
@@ -180,17 +157,83 @@ function updateCalculator() {
     resultSpans.marginFragments.textContent = isFinite(marginFragments) ? marginFragments : "∞";
 }
 
-// --- EVENT HANDLING ---
+function handleImport() {
+    const importText = document.getElementById('import-text').value;
+    if (!importText) { alert("Please paste EDSY SLEF export text first."); return; }
+    customPDStats = null;
+    
+    try {
+        const buildData = JSON.parse(importText)[0].data;
+        const modules = buildData.Modules;
+        
+        document.querySelectorAll('.laser-select, .collector-select').forEach(s => s.value = 0);
+        
+        modules.forEach(module => {
+            const item = module.Item;
+            if (item.includes("int_powerdistributor")) {
+                const parts = item.split("_");
+                const gradeMap = { "1": "E", "2": "D", "3": "C", "4": "B", "5": "A" };
+                const gradeNumber = parts[3].replace("class", "");
+                
+                document.getElementById('pd-size').value = parts[2].replace("size", "");
+                document.getElementById('pd-grade').value = gradeMap[gradeNumber] || 'A';
+
+                if (module.Engineering) {
+                    const wepCapMod = module.Engineering.Modifiers.find(m => m.Label === 'WeaponsCapacity');
+                    const wepRechargeMod = module.Engineering.Modifiers.find(m => m.Label === 'WeaponsRecharge');
+                    customPDStats = {
+                        cap: wepCapMod ? wepCapMod.Value : 0,
+                        recharge: wepRechargeMod ? wepRechargeMod.Value : 0
+                    };
+                    document.getElementById('eng-type').value = 'Imported';
+                    document.getElementById('eng-grade').value = '0';
+                    document.getElementById('exp-effect').value = 'None';
+                } else { 
+                    document.getElementById('eng-type').value = "None";
+                }
+            }
+            else if (item === "hpt_mininglaser_fixed_small") {
+                const select = document.getElementById(module.Engineering ? 'laser-1d-modd' : 'laser-1d-ml');
+                select.value = parseInt(select.value) + 1;
+            } else if (item === "hpt_mininglaser_fixed_small_advanced") {
+                document.getElementById('laser-1d-lance').value = parseInt(document.getElementById('laser-1d-lance').value) + 1;
+            } else if (item === "hpt_mininglaser_fixed_medium") {
+                document.getElementById('laser-2d-ml').value = parseInt(document.getElementById('laser-2d-ml').value) + 1;
+            }
+            else if (item.includes("int_dronecontrol_collection")) {
+                const match = item.match(/size(\d)/);
+                if (match) {
+                    const size = match[1];
+                    const select = document.getElementById(`collector-${size}d`);
+                    if (select) select.value = parseInt(select.value) + 1;
+                }
+            }
+            else if (item.includes("int_multidronecontrol")) {
+                 if (item.includes("mining") || item.includes("operations")) {
+                     document.getElementById('collector-3c-multi').value = 1;
+                 }
+                 if (item.includes("universal")) {
+                     document.getElementById('collector-7a-uni').value = 1;
+                 }
+            }
+        });
+        updateCalculator();
+        alert("Build imported successfully!");
+    } catch (e) {
+        alert("Import failed. Please ensure you have pasted the complete and unmodified SLEF (JSON) export text.");
+        console.error("Import parsing error:", e);
+    }
+}
+
 function setupEventListeners() {
     const multiLimpetInput = document.getElementById('collector-3c-multi');
     const universalInput = document.getElementById('collector-7a-uni');
-
     function handleExclusiveCollectors(event) {
         if (parseInt(event.target.value) === 1) {
             if (event.target.id === 'collector-3c-multi') universalInput.value = 0;
             else if (event.target.id === 'collector-7a-uni') multiLimpetInput.value = 0;
         }
-        updateCalculator();
+        updateCalculator(event);
     }
     if (multiLimpetInput) multiLimpetInput.addEventListener('change', handleExclusiveCollectors);
     if (universalInput) universalInput.addEventListener('change', handleExclusiveCollectors);
@@ -203,17 +246,36 @@ function setupEventListeners() {
             if (totalLasers > 10) {
                 event.target.value = parseInt(event.target.value) - (totalLasers - 10);
             }
-            updateCalculator();
+            updateCalculator(event);
         });
     });
 
     document.querySelectorAll('select:not(.laser-select):not(.exclusive-collector)').forEach(select => {
-        select.addEventListener('change', updateCalculator);
+        select.addEventListener('change', (event) => updateCalculator(event));
     });
+
+    document.getElementById('import-btn').addEventListener('click', handleImport);
 }
 
-// --- Initial Execution ---
 document.addEventListener('DOMContentLoaded', () => {
-    // This function will now run only after the DOM is fully loaded.
+    populateSelect('pd-size', [1, 2, 3, 4, 5, 6, 7, 8], 7);
+    populateSelect('pd-grade', ['E', 'D', 'C', 'B', 'A', 'A Guardian'], 'A');
+    populateSelect('eng-type', ['None', 'Weapons Focused', 'Charge Enhanced', 'Imported']);
+    populateSelect('eng-grade', ['0', '1', '2', '3', '4', '5']);
+    populateSelect('exp-effect', ['None', 'Cluster Capacitors', 'Super Conduits']);
+    populateSelect('zone-select', ['NoRES', 'LoRES', 'RES', 'HiRES', 'HzRES']);
+    populateSelect('prospector-select', ['YES', 'NO'], 'YES');
+    populateNumberSelect('laser-1d-ml', 10);
+    populateNumberSelect('laser-1d-lance', 10);
+    populateNumberSelect('laser-1d-modd', 10);
+    populateNumberSelect('laser-2d-ml', 7);
+    populateNumberSelect('collector-1d', 10);
+    populateNumberSelect('collector-3d', 10);
+    populateNumberSelect('collector-5d', 7);
+    populateNumberSelect('collector-7d', 3);
+    populateNumberSelect('collector-3c-multi', 1);
+    populateNumberSelect('collector-7a-uni', 1);
+    
     setupEventListeners();
+    updateCalculator();
 });
