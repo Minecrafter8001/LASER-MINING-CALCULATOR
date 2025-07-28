@@ -43,6 +43,7 @@ const laserStats = {
 };
 let customPDStats = null;
 let resultSpans = {};
+let mode = "none" // "none", "coriolis", "edsy"
 
 function populateSelect(elementId, options, defaultSelection) {
     const select = document.getElementById(elementId);
@@ -226,7 +227,7 @@ function handleImport() {
 }
 
 function handleCoriolisImport() {
-    const importText = document.getElementById('import-text-cor').value;
+    const importText = document.getElementById('import-text').value;
     const refineryAlert = document.getElementById('refinery-alert');
     if (!importText) {
         alert("Please paste Coriolis export text first.");
@@ -392,26 +393,51 @@ Depletion Estimates:
     textarea.focus();
     textarea.select();
 }
-
-
-
-
-
+function importMenu(input) {
+    const text = {
+        "edsy": "Paste EDSY SLEF export text here...", 
+        "coriolis": "Paste Coriolis export text here..."
+    };
+    const importSection = document.getElementById('import-section');
+    const importText = document.getElementById('import-text');
+    
+    // If clicking the same button that's currently active
+    if (mode === input) {
+        // Fade out then hide
+        importSection.classList.remove('visible');
+        setTimeout(() => {
+            importSection.style.display = 'none';
+            mode = 'none';
+        }, 300); // Match transition duration
+    } 
+    else {
+        // Switching modes or showing for first time
+        if (mode === 'none') {
+            // First show - set display first then fade in
+            importSection.style.display = 'block';
+            importText.placeholder = text[input];
+            setTimeout(() => {
+                importSection.classList.add('visible');
+            }, 10);
+        } else {
+            // Switching between modes - fade out first
+            importSection.classList.remove('visible');
+            setTimeout(() => {
+                importText.placeholder = text[input];
+                importSection.classList.add('visible');
+            }, 300);
+        }
+        mode = input;
+    }
+}
 function setupEventListeners() {
+    
     document.getElementById('toggle-import-btn').addEventListener('click', () => {
-        const importSection = document.getElementById('import-section');
-        const coriolisSection = document.getElementById('coriolis-section');
-        const isHidden = importSection.style.display === 'none' || importSection.style.display === '';
-        importSection.style.display = isHidden ? 'block' : 'none';
-        if (isHidden) coriolisSection.style.display = 'none';
+        importMenu("edsy");
     });
     
     document.getElementById('toggle-coriolis-btn').addEventListener('click', () => {
-        const importSection = document.getElementById('import-section');
-        const coriolisSection = document.getElementById('coriolis-section');
-        const isHidden = coriolisSection.style.display === 'none' || coriolisSection.style.display === '';
-        coriolisSection.style.display = isHidden ? 'block' : 'none';
-        if (isHidden) importSection.style.display = 'none';
+        importMenu("coriolis");
     });
     
     const multiLimpetInput = document.getElementById('collector-3c-multi');
@@ -442,8 +468,14 @@ function setupEventListeners() {
         select.addEventListener('change', (event) => updateCalculator(event));
     });
 
-    document.getElementById('import-btn').addEventListener('click', handleImport);
-    document.getElementById('import-btn-cor').addEventListener('click', handleCoriolisImport);
+    document.getElementById('import-btn').addEventListener('click', () => {
+        if (mode === 'edsy') {
+            handleImport();
+        } else if (mode === 'coriolis') {
+            handleCoriolisImport();
+        }
+    });
+
     document.getElementById('export-btn').addEventListener('click', exportStats);
     document.getElementById('export-popup-close').addEventListener('click', () => {
         document.getElementById('export-popup').style.display = 'none';
