@@ -7,7 +7,17 @@
     <style>
         body { font-family: monospace; background-color: #0d0d0d; color: #ff9f3b; max-width: 900px; margin: auto; padding: 10px; }
         .section { border: 1px solid #ff9f3b; padding: 15px; margin-bottom: 20px; }
-        .section h2 { margin-top: 0; color: #ffc439; text-align: center; border-bottom: 1px solid #ff9f3b; padding-bottom: 10px; margin-bottom: 20px; }
+        .section h2 { 
+            margin-top: 0; 
+            color: #ffc439; 
+            text-align: center; 
+            border-bottom: 1px solid #ff9f3b; 
+            /* Slimmer header style */
+            padding-bottom: 5px; 
+            margin-bottom: 15px; 
+            /* Uppercase text */
+            text-transform: uppercase;
+        }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
         .grid-item { display: flex; flex-direction: column; }
         label { margin-bottom: 5px; font-size: 0.9em; }
@@ -15,7 +25,7 @@
         textarea { height: 100px; resize: vertical; margin-bottom: 10px; }
         button { cursor: pointer; font-weight: bold; color: #ffc439; }
         button:hover { background-color: #444; }
-        #import-section, #coriolis-section { display: none; margin-top: 10px; } /* Hidden by default */
+        #import-section, #coriolis-section { display: none; margin-top: 10px; }
         .button-group { display: flex; gap: 10px; margin-bottom: 20px; }
         .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px; }
         .pd-display { border: 1px solid #ff9f3b; padding: 10px; text-align: center; }
@@ -62,6 +72,7 @@
     </div>
     
     <div class="section">
+        <h2>ZONE & PROSPECTOR</h2>
         <div class="grid">
             <div class="grid-item"><label>Zone?</label><select id="zone-select"></select></div>
             <div class="grid-item"><label>Prospector?</label><select id="prospector-select"></select></div>
@@ -69,7 +80,7 @@
     </div>
 
     <div class="section">
-        <h2>Lasers</h2>
+        <h2>LASERS</h2>
         <div class="grid">
             <div class="grid-item"><label>1D ML</label><select class="laser-select" id="laser-1d-ml"></select></div>
             <div class="grid-item"><label>1D Mining Lance</label><select class="laser-select" id="laser-1d-lance"></select></div>
@@ -79,7 +90,7 @@
     </div>
     
     <div class="section">
-        <h2>Collectors</h2>
+        <h2>COLLECTORS</h2>
         <div class="grid">
             <div class="grid-item"><label>1D</label><select class="collector-select" id="collector-1d"></select></div>
             <div class="grid-item"><label>3D</label><select class="collector-select" id="collector-3d"></select></div>
