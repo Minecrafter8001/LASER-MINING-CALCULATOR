@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PD Calculator</title>
+    <style>
+        body { font-family: monospace; background-color: #0d0d0d; color: #ff9f3b; }
+        div { margin-bottom: 1em; }
+        label { display: inline-block; width: 100px; }
+        select { background-color: #333; color: #ff9f3b; border: 1px solid #ff9f3b; padding: 5px; }
+        h2, h3 { color: #ffc439; }
+        span { font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2>POWER DISTRIBUTOR</h2>
+    <div>
+        <label>Size</label>
+        <select id="pd-size">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7" selected>7</option>
+            <option value="8">8</option>
+        </select>
+    </div>
+    <div>
+        <label>Grade</label>
+        <select id="pd-grade">
+            <option value="E">E</option>
+            <option value="D">D</option>
+            <option value="C">C</option>
+            <option value="B">B</option>
+            <option value="A" selected>A</option>
+            <option value="A Guardian">A Guardian</option>
+        </select>
+    </div>
+
+    <hr>
+
+    <h3>RESULTS</h3>
+    <p>WEP CAPACITY: <span id="wep-cap-result">--</span></p>
+    <p>WEP RECHARGE: <span id="wep-recharge-result">--</span></p>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
