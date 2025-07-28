@@ -43,6 +43,7 @@ const laserStats = {
 };
 let customPDStats = null;
 let resultSpans = {};
+let mode = "none" // "none", "coriolis", "edsy"
 
 function populateSelect(elementId, options, defaultSelection) {
     const select = document.getElementById(elementId);
@@ -226,7 +227,7 @@ function handleImport() {
 }
 
 function handleCoriolisImport() {
-    const importText = document.getElementById('import-text-cor').value;
+    const importText = document.getElementById('import-text').value;
     const refineryAlert = document.getElementById('refinery-alert');
     if (!importText) {
         alert("Please paste Coriolis export text first.");
@@ -343,22 +344,108 @@ function handleCoriolisImport() {
     }
 }
 
+function exportStats() {
+    // (same code to gather exportText)
+    const pdSize = document.getElementById('pd-size').value;
+    const pdGrade = document.getElementById('pd-grade').value;
+    const engType = document.getElementById('eng-type').value;
+    const engGrade = document.getElementById('eng-grade').value;
+    const expEffect = document.getElementById('exp-effect').value;
+    const totalLimpets = document.getElementById('total-limpets-result').textContent;
+    const fragmentsPerRock = document.getElementById('fragments-per-rock').textContent;
+    const totalDraw = document.getElementById('total-draw-result').textContent;
+    const fragGen = document.getElementById('frag-gen-result').textContent;
+    const depletionPercent = document.getElementById('depletion-percent').textContent;
+    const depletionTime = document.getElementById('depletion-time').textContent;
+    const marginFragments = document.getElementById('margin-fragments').textContent;
+    const cap = document.getElementById('wep-cap-result').textContent;
+    const recharge = document.getElementById('wep-recharge-result').textContent;
+
+    const pdType = engType === "Imported" ? "Imported" : `Grade ${engGrade}`;
+    
+    const exportText = `
+Power Distributor:
+  Capacity: ${cap}
+  Recharge Rate: ${recharge}
+  Size: ${pdSize}
+  Grade: ${pdGrade}
+  Engineering: ${pdType}
+  Experimental Effect: ${expEffect}
+
+Mining Setup:
+  Total Limpets: ${totalLimpets}
+  Fragments per Rock: ${fragmentsPerRock}
+  Total Power Draw: ${totalDraw}
+  Fragment Generation Rate: ${fragGen}
+
+Depletion Estimates:
+  Depletion %: ${depletionPercent}%
+  Time to Depletion: ${depletionTime} seconds
+  PD Fragment Margin: ${marginFragments}
+`.trim();
+
+    const popup = document.getElementById('export-popup');
+    const textarea = popup.querySelector('textarea');
+    textarea.value = exportText;
+
+    popup.style.display = 'flex';
+
+    textarea.focus();
+    textarea.select();
+}
+function importMenu(input) {
+    const placeholders = {
+        "edsy": "Paste EDSY SLEF export text here...",
+        "coriolis": "Paste Coriolis export text here..."
+    };
+    const importSection = document.getElementById('import-section');
+    const importText = document.getElementById('import-text');
+    // If clicking the currently active mode, hide the section
+    if (mode === input) {
+        importSection.classList.remove('visible');
+        setTimeout(() => {
+            importSection.style.display = 'none';
+            mode = 'none';
+        }, 300);
+        return;
+    }
+    // Switching modes or showing for the first time
+    const showSection = () => {
+        importSection.classList.add('visible');
+    };
+    // Update the placeholder text based on the selected mode
+    const updatePlaceholder = () => {
+        const random = Math.random();
+        if (input === "coriolis" && random < 0.01) {
+            importText.placeholder = "Stop it... get some help"; //The funny
+        } else {
+            importText.placeholder = placeholders[input];
+        }
+    };
+    if (mode === 'none') {
+        // First time showing
+        importSection.style.display = 'block';
+        updatePlaceholder();
+        setTimeout(showSection, 10);
+    } else {
+        // Switching modes
+        importSection.classList.remove('visible');
+        setTimeout(() => {
+            updatePlaceholder();
+            showSection();
+        }, 300);
+    }
+    mode = input;
+}
 
 function setupEventListeners() {
+    
     document.getElementById('toggle-import-btn').addEventListener('click', () => {
-        const importSection = document.getElementById('import-section');
-        const coriolisSection = document.getElementById('coriolis-section');
-        const isHidden = importSection.style.display === 'none' || importSection.style.display === '';
-        importSection.style.display = isHidden ? 'block' : 'none';
-        if (isHidden) coriolisSection.style.display = 'none';
+        importMenu("edsy");
     });
     
     document.getElementById('toggle-coriolis-btn').addEventListener('click', () => {
-        const importSection = document.getElementById('import-section');
-        const coriolisSection = document.getElementById('coriolis-section');
-        const isHidden = coriolisSection.style.display === 'none' || coriolisSection.style.display === '';
-        coriolisSection.style.display = isHidden ? 'block' : 'none';
-        if (isHidden) importSection.style.display = 'none';
+        importMenu("coriolis");
     });
     
     const multiLimpetInput = document.getElementById('collector-3c-multi');
@@ -389,9 +476,23 @@ function setupEventListeners() {
         select.addEventListener('change', (event) => updateCalculator(event));
     });
 
-    document.getElementById('import-btn').addEventListener('click', handleImport);
-    document.getElementById('import-btn-cor').addEventListener('click', handleCoriolisImport);
+    document.getElementById('import-btn').addEventListener('click', () => {
+        if (mode === 'edsy') {
+            handleImport();
+        } else if (mode === 'coriolis') {
+            handleCoriolisImport();
+        }
+    });
+
+    document.getElementById('export-btn').addEventListener('click', exportStats);
+    document.getElementById('export-popup-close').addEventListener('click', () => {
+        document.getElementById('export-popup').style.display = 'none';
+    });
+
+
 }
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
     resultSpans = {

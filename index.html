@@ -1,149 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laser Mining Calculator</title>
-    <style>
-        body { font-family: monospace; background-color: #0d0d0d; color: #ff9f3b; max-width: 900px; margin: auto; padding: 10px; }
-        .section { border: 1px solid #ff9f3b; padding: 15px; margin-bottom: 20px; }
-        .section h2 { 
-            margin-top: 0; 
-            color: #ffc439; 
-            text-align: center; 
-            border-bottom: 1px solid #ff9f3b; 
-            padding-bottom: 5px; 
-            margin-bottom: 15px; 
-            text-transform: uppercase;
-        }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
-        .grid-item { display: flex; flex-direction: column; }
-        label { margin-bottom: 5px; font-size: 0.9em; }
-        select, textarea, button { width: 100%; background-color: #333; color: #ff9f3b; border: 1px solid #ff9f3b; padding: 8px; box-sizing: border-box; }
-        textarea { height: 100px; resize: vertical; margin-bottom: 10px; }
-        button { cursor: pointer; font-weight: bold; color: #ffc439; }
-        button:hover { background-color: #444; }
-        #import-section, #coriolis-section { display: none; margin-top: 10px; }
-        .button-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .pd-display { border: 1px solid #ff9f3b; padding: 10px; text-align: center; }
-        .pd-display .value { font-size: 1.5em; font-weight: bold; color: #fff; }
-        .pd-display .label { font-size: 0.8em; text-transform: uppercase; }
-        .total-display { text-align: center; padding: 10px; }
-        .final-results p { 
-            font-size: 1.4em;
-            margin: 12px 0; 
-        }
-        .final-results span { color: #fff; font-weight: bold; }
-        #pd-status { font-size: 0.8em; color: #11dabd; margin-left: 10px; }
-        .message-box { text-align: center; font-size: 1.5em; padding: 20px; color: #fff; }
-        .footer-note {
-            text-align: center;
-            font-weight: bold;
-            color: #ffc439;
-            margin-top: 20px;
-            font-size: 1.2em;
-        }
-        .alert-box { 
-            display: none;
-            background-color: #8B0000;
-            color: white;
-            text-align: center;
-            padding: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ff9f3b;
-        }
-    </style>
-</head>
-<body>
-
-    <div id="refinery-alert" class="alert-box">No refinery detected in build!</div>
-
-    <div class="button-group">
-        <button id="toggle-import-btn">EDSY Import</button>
-        <button id="toggle-coriolis-btn">Coriolis Import</button>
-    </div>
-    
-    <div class="section" id="import-section">
-        <textarea id="import-text" placeholder="Paste SLEF export text here..."></textarea>
-        <button id="import-btn">Import</button>
-    </div>
-
-    <div class="section" id="coriolis-section">
-        <textarea id="import-text-cor" placeholder="Paste Coriolis export text here..."></textarea>
-        <button id="import-btn-cor">Import</button>
-    </div>
-
-    <div class="section">
-        <h2>POWER DISTRIBUTOR <span id="pd-status"></span></h2>
-        <div class="grid">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Laser Mining Calculator</title>
+      <style>
+         body { font-family: monospace; background-color: #0d0d0d; color: #ff9f3b; max-width: 900px; margin: auto; padding: 10px; }
+         .section { border: 1px solid #ff9f3b; padding: 15px; margin-bottom: 20px; }
+         .section h2 { 
+         margin-top: 0; 
+         color: #ffc439; 
+         text-align: center; 
+         border-bottom: 1px solid #ff9f3b; 
+         padding-bottom: 5px; 
+         margin-bottom: 15px; 
+         text-transform: uppercase;
+         }
+         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+         .grid-item { display: flex; flex-direction: column; }
+         label { margin-bottom: 5px; font-size: 0.9em; }
+         select, textarea, button { width: 100%; background-color: #333; color: #ff9f3b; border: 1px solid #ff9f3b; padding: 8px; box-sizing: border-box; }
+         textarea { height: 100px; resize: vertical; margin-bottom: 10px; }
+         button { cursor: pointer; font-weight: bold; color: #ffc439; }
+         button:hover { background-color: #444; }
+         .button-group { display: flex; gap: 10px; margin-bottom: 20px; }
+         .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px; }
+         .pd-display { border: 1px solid #ff9f3b; padding: 10px; text-align: center; }
+         .pd-display .value { font-size: 1.5em; font-weight: bold; color: #fff; }
+         .pd-display .label { font-size: 0.8em; text-transform: uppercase; }
+         .total-display { text-align: center; padding: 10px; }
+         .final-results p { 
+         font-size: 1.4em;
+         margin: 12px 0; 
+         }
+         .final-results span { color: #fff; font-weight: bold; }
+         #pd-status { font-size: 0.8em; color: #11dabd; margin-left: 10px; }
+         .message-box { text-align: center; font-size: 1.5em; padding: 20px; color: #fff; }
+         .footer-note {
+         text-align: center;
+         font-weight: bold;
+         color: #ffc439;
+         margin-top: 20px;
+         font-size: 1.2em;
+         }
+         .alert-box { 
+         display: none;
+         background-color: #8B0000;
+         color: white;
+         text-align: center;
+         padding: 8px;
+         margin-bottom: 15px;
+         border: 1px solid #ff9f3b;
+         }
+         #export-popup {
+         position: fixed;
+         top: 0; left: 0; right: 0; bottom: 0;
+         background: rgba(0, 0, 0, 0.85);
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         z-index: 10000;
+         padding: 20px;
+         box-sizing: border-box;
+         }
+         #export-popup-content {
+         background: #0d0d0d;
+         color: #ff9f3b;
+         font-family: monospace;
+         padding: 20px 30px 30px 30px;
+         border-radius: 10px;
+         width: 600px;        /* fixed width */
+         max-width: 90vw;     /* responsive max width */
+         height: auto;        /* auto height to fit content */
+         max-height: 90vh;    /* limit max height to viewport */
+         box-sizing: border-box;
+         display: flex;
+         flex-direction: column;
+         position: relative;
+         box-shadow: 0 0 15px #ff9f3bcc;
+         }
+         #export-popup-close {
+         scale: 1;
+         position: absolute;
+         top: 0;
+         right: 0;
+         transform: translate(10%, -10%);
+         width: 30px;
+         height: 30px;
+         background: transparent;
+         border: none;
+         color: #ff9f3b;
+         font-size: 1em;
+         font-weight: bold;
+         cursor: pointer;
+         line-height: 1;
+         padding: 1px;
+         transition: color 0.3s ease;
+         }
+         #export-popup-close:hover {
+         color: #fff;
+         }
+         #export-popup textarea {
+         background: #222;
+         padding: 10px;
+         border: 1px solid #ff9f3b;
+         color: #ff9f3b;
+         font-size: 1em;
+         resize: none;
+         width: 100%;           /* full width */
+         height: auto;          /* auto height */
+         min-height: 200px;
+         max-height: 800px;
+         box-sizing: border-box;
+         border-radius: 6px;
+         font-family: monospace;
+         overflow-y: auto;
+         white-space: pre-wrap;
+         }
+         /* Replace the existing #import-section styles with these */
+         #import-section {
+         display: none;
+         opacity: 0;
+         margin-top: 10px;
+         transition: opacity 0.3s ease;
+         height: 1000;
+         overflow: hidden;
+         }
+         #import-section.visible {
+         display: block;
+         opacity: 1;
+         max-height: 500px; /* Adjust this if needed */
+         transition: opacity 0.3s ease, max-height 0.5s ease;
+         }
+         #import-section textarea,
+         #import-section button {
+         opacity: 0;
+         transition: opacity 0.3s ease 0.2s;
+         }
+         #import-section.visible textarea,
+         #import-section.visible button {
+         opacity: 1;
+         }
+         /* Firefox Support */
+         * {
+         scrollbar-width: thin;  /* "auto" or "thin" */
+         scrollbar-color: #ff9f3b #333333;  /* thumb and track colors */
+         }
+         /* Chrome, Edge, Safari Support */
+         ::-webkit-scrollbar {
+         width: 12px;  /* Width of vertical scrollbar */
+         height: 12px; /* Height of horizontal scrollbar */
+         }
+         ::-webkit-scrollbar-track {
+         background: #333333; /* Track color */
+         border-radius: 6px;
+         }
+         ::-webkit-scrollbar-thumb {
+         background: #ff9f3b; /* Thumb color */
+         border-radius: 6px;
+         border: 2px solid #333333; /* Creates padding effect */
+         }
+         ::-webkit-scrollbar-thumb:hover {
+         background: #ff8c1a; /* Darker orange on hover */
+         }
+      </style>
+   </head>
+   <body>
+      <div id="refinery-alert" class="alert-box">No refinery detected in build!</div>
+      <div class="button-group">
+         <button id="toggle-import-btn">EDSY Import</button>
+         <button id="toggle-coriolis-btn">Coriolis Import</button>
+      </div>
+      <div class="section" id="import-section">
+         <textarea id="import-text" placeholder=></textarea>
+         <button id="import-btn">Import</button>
+      </div>
+      <div class="section">
+         <h2>POWER DISTRIBUTOR <span id="pd-status"></span></h2>
+         <div class="grid">
             <div class="grid-item"><label>Size</label><select id="pd-size"></select></div>
             <div class="grid-item"><label>Grade</label><select id="pd-grade"></select></div>
             <div class="grid-item"><label>Engineering</label><select id="eng-type"></select></div>
             <div class="grid-item"><label>Eng. Grade</label><select id="eng-grade"></select></div>
             <div class="grid-item"><label>Experimental</label><select id="exp-effect"></select></div>
-        </div>
-    </div>
-
-    <div class="results-grid">
-        <div class="pd-display"><div id="wep-cap-result" class="value">--</div><div class="label">PD CAPACITY</div></div>
-        <div class="pd-display"><div id="wep-recharge-result" class="value">--</div><div class="label">PD RECHARGE</div></div>
-        <div class="pd-display"><div id="total-draw-result" class="value">--</div><div class="label">TOTAL LASER DRAW</div></div>
-    </div>
-    
-    <div class="section">
-        <h2>ZONE & PROSPECTOR</h2>
-        <div class="grid">
+         </div>
+      </div>
+      <div class="results-grid">
+         <div class="pd-display">
+            <div id="wep-cap-result" class="value">--</div>
+            <div class="label">PD CAPACITY</div>
+         </div>
+         <div class="pd-display">
+            <div id="wep-recharge-result" class="value">--</div>
+            <div class="label">PD RECHARGE</div>
+         </div>
+         <div class="pd-display">
+            <div id="total-draw-result" class="value">--</div>
+            <div class="label">TOTAL LASER DRAW</div>
+         </div>
+      </div>
+      <div class="section">
+         <h2>ZONE & PROSPECTOR</h2>
+         <div class="grid">
             <div class="grid-item"><label>Zone?</label><select id="zone-select"></select></div>
             <div class="grid-item"><label>Prospector?</label><select id="prospector-select"></select></div>
-        </div>
-        <div class="results-grid" style="margin-top: 15px;">
-             <div class="pd-display">
-                <div id="fragments-per-rock" class="value">--</div>
-                <div class="label">FRAGMENTS / ROCK</div>
+         </div>
+         <div class="results-grid" style="margin-top: 15px;">
+            <div class="pd-display">
+               <div id="fragments-per-rock" class="value">--</div>
+               <div class="label">FRAGMENTS / ROCK</div>
             </div>
-        </div>
-    </div>
-
-    <div class="section">
-        <h2>LASERS</h2>
-        <div class="grid">
+         </div>
+      </div>
+      <div class="section">
+         <h2>LASERS</h2>
+         <div class="grid">
             <div class="grid-item"><label>1D ML</label><select class="laser-select" id="laser-1d-ml"></select></div>
             <div class="grid-item"><label>1D Mining Lance</label><select class="laser-select" id="laser-1d-lance"></select></div>
             <div class="grid-item"><label>1D Modifed (LR+IR)</label><select class="laser-select" id="laser-1d-modd"></select></div>
             <div class="grid-item"><label>2D ML</label><select class="laser-select" id="laser-2d-ml"></select></div>
-        </div>
-        <div class="results-grid" style="margin-top: 15px;">
-             <div class="pd-display">
-                <div id="frag-gen-result" class="value">--</div>
-                <div class="label">FRAG GEN / SEC</div>
+         </div>
+         <div class="results-grid" style="margin-top: 15px;">
+            <div class="pd-display">
+               <div id="frag-gen-result" class="value">--</div>
+               <div class="label">FRAG GEN / SEC</div>
             </div>
-        </div>
-    </div>
-    
-    <div class="section">
-        <h2>COLLECTORS</h2>
-        <div class="grid" style="grid-template-columns: repeat(6, 1fr);">
+         </div>
+      </div>
+      <div class="section">
+         <h2>COLLECTORS</h2>
+         <div class="grid" style="grid-template-columns: repeat(6, 1fr);">
             <div class="grid-item"><label>1D</label><select class="collector-select" id="collector-1d"></select></div>
             <div class="grid-item"><label>3D</label><select class="collector-select" id="collector-3d"></select></div>
             <div class="grid-item"><label>5D</label><select class="collector-select" id="collector-5d"></select></div>
             <div class="grid-item"><label>7D</label><select class="collector-select" id="collector-7d"></select></div>
             <div class="grid-item"><label>3C Multi-Limpet</label><select class="exclusive-collector collector-select" id="collector-3c-multi"></select></div>
             <div class="grid-item"><label>7A Universal</label><select class="exclusive-collector collector-select" id="collector-7a-uni"></select></div>
-        </div>
-        <div class="total-display"><h3>Total Active Limpets: <span id="total-limpets-result">0</span></h3></div>
-    </div>
-    
-    <div class="section final-results">
-        <h2>RESULTS</h2>
-        <p>&gt; Depletes asteroids <span id="depletion-percent">--</span>% in continuous operation for <span id="depletion-time">--</span>s</p>
-        <p>&gt; Has <span id="total-limpets-result-final">--</span> active limpets to collect ~ <span id="fragments-per-rock-final">--</span> fragments</p>
-        <p>&gt; PD had margin for <span id="margin-fragments">--</span> additional fragments before empty</p>
-    </div>
-
-    <div class="footer-note">DON'T FORGET YOUR LIMPETS</div>
-
-    <script src="script.js"></script>
-
-</body>
+         </div>
+         <div class="total-display">
+            <h3>Total Active Limpets: <span id="total-limpets-result">0</span></h3>
+         </div>
+      </div>
+      <div class="section final-results">
+         <h2>RESULTS</h2>
+         <p>&gt; Depletes asteroids <span id="depletion-percent">--</span>% in continuous operation for <span id="depletion-time">--</span>s</p>
+         <p>&gt; Has <span id="total-limpets-result-final">--</span> active limpets to collect ~ <span id="fragments-per-rock-final">--</span> fragments</p>
+         <p>&gt; PD had margin for <span id="margin-fragments">--</span> additional fragments before empty</p>
+      </div>
+      <div class="button-group">
+         <button id="export-btn">Export Stats</button>  <!-- Add this -->
+      </div>
+      <div id="export-popup" style="display: none;">
+         <div id="export-popup-content">
+            <button id="export-popup-close" aria-label="Close export popup">✖</button>
+            <textarea readonly></textarea>
+         </div>
+      </div>
+      <div class="footer-note">DON'T FORGET YOUR LIMPETS</div>
+      <script src="script.js"></script>
+   </body>
 </html>
