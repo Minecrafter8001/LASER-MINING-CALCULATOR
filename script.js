@@ -416,7 +416,7 @@ function importMenu(input) {
     // Update the placeholder text based on the selected mode
     const updatePlaceholder = () => {
         const random = Math.random();
-        if (input === "coriolis" && random < 1.01) {
+        if (input === "coriolis" && random < 0.01) {
             importText.placeholder = "Stop it... get some help"; //The funny
         } else {
             importText.placeholder = placeholders[input];
