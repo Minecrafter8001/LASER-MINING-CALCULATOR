@@ -394,47 +394,50 @@ Depletion Estimates:
     textarea.select();
 }
 function importMenu(input) {
-    const text = {
-        "edsy": "Paste EDSY SLEF export text here...", 
+    const placeholders = {
+        "edsy": "Paste EDSY SLEF export text here...",
         "coriolis": "Paste Coriolis export text here..."
     };
     const importSection = document.getElementById('import-section');
     const importText = document.getElementById('import-text');
-    
-    // If clicking the same button that's currently active
+    // If clicking the currently active mode, hide the section
     if (mode === input) {
-        // Fade out then hide
         importSection.classList.remove('visible');
         setTimeout(() => {
             importSection.style.display = 'none';
             mode = 'none';
-        }, 300); // Match transition duration
-    } 
-    else {
-        // Switching modes or showing for first time
-        if (mode === 'none') {
-            // First show - set display first then fade in
-            importSection.style.display = 'block';
-            importText.placeholder = text[input];
-            setTimeout(() => {
-                importSection.classList.add('visible');
-            }, 10);
-        } else {
-            // Switching between modes - fade out first
-            importSection.classList.remove('visible');
-            setTimeout(() => {
-
-                if (input === "coriolis" && Math.random() < 0.01) {
-                    importText.placeholder = "Stop it... get some help";
-                }else {
-                    importText.placeholder = text[input];
-                }
-                importSection.classList.add('visible');
-            }, 300);
-        }
-        mode = input;
+        }, 300);
+        return;
     }
+    // Switching modes or showing for the first time
+    const showSection = () => {
+        importSection.classList.add('visible');
+    };
+    // Update the placeholder text based on the selected mode
+    const updatePlaceholder = () => {
+        const random = Math.random();
+        if (input === "coriolis" && random < 1.01) {
+            importText.placeholder = "Stop it... get some help"; //The funny
+        } else {
+            importText.placeholder = placeholders[input];
+        }
+    };
+    if (mode === 'none') {
+        // First time showing
+        importSection.style.display = 'block';
+        updatePlaceholder();
+        setTimeout(showSection, 10);
+    } else {
+        // Switching modes
+        importSection.classList.remove('visible');
+        setTimeout(() => {
+            updatePlaceholder();
+            showSection();
+        }, 300);
+    }
+    mode = input;
 }
+
 function setupEventListeners() {
     
     document.getElementById('toggle-import-btn').addEventListener('click', () => {
