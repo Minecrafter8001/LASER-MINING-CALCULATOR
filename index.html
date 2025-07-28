@@ -12,9 +12,10 @@
         .grid-item { display: flex; flex-direction: column; }
         label { margin-bottom: 5px; font-size: 0.9em; }
         select, textarea, button { width: 100%; background-color: #333; color: #ff9f3b; border: 1px solid #ff9f3b; padding: 8px; box-sizing: border-box; }
-        textarea { height: 40px; resize: vertical; } /* Reduced height */
-        button { cursor: pointer; font-weight: bold; color: #ffc439; margin-top: 10px;}
+        textarea { height: 40px; resize: vertical; margin-bottom: 10px; }
+        button { cursor: pointer; font-weight: bold; color: #ffc439; }
         button:hover { background-color: #444; }
+        #import-section { display: none; }
         .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px; }
         .pd-display { border: 1px solid #ff9f3b; padding: 10px; text-align: center; }
         .pd-display .value { font-size: 1.5em; font-weight: bold; color: #fff; }
@@ -27,7 +28,8 @@
 </head>
 <body>
 
-    <div class="section">
+    <button id="toggle-import-btn" style="margin-bottom: 10px;">Show/Hide EDSY Import</button>
+    <div class="section" id="import-section">
         <h2>Import EDSY Build</h2>
         <textarea id="import-text" placeholder="Paste SLEF export text here..."></textarea>
         <button id="import-btn">Import</button>
@@ -77,13 +79,13 @@
             <div class="grid-item"><label>3C Multi-Limpet</label><select class="exclusive-collector collector-select" id="collector-3c-multi"></select></div>
             <div class="grid-item"><label>7A Universal</label><select class="exclusive-collector collector-select" id="collector-7a-uni"></select></div>
         </div>
-        <div class="total-display"><h3>Total Active Limpets: <span id="total-limpets-result">--</span></h3></div>
+        <div class="total-display"><h3>Total Active Limpets: <span id="total-limpets-result">0</span></h3></div>
     </div>
     
     <div class="section final-results">
         <h2>RESULTS</h2>
         <p>&gt; Depletes asteroids <span id="depletion-percent">--</span>% in continuous operation for <span id="depletion-time">--</span>s</p>
-        <p>&gt; Has <span id="total-limpets-result-2">--</span> active limpets to collect ~ <span id="fragments-per-rock">--</span> fragments</p>
+        <p>&gt; Has <span id="total-limpets-result-final">--</span> active limpets to collect ~ <span id="fragments-per-rock">--</span> fragments</p>
         <p>&gt; PD had margin for <span id="margin-fragments">--</span> additional fragments before empty</p>
     </div>
 
