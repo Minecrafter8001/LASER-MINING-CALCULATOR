@@ -239,8 +239,8 @@ function handleCoriolisImport() {
     try {
         const buildData = JSON.parse(importText);
         const modules = buildData.components;
-        const hardpoints = buildData.hardpoints || [];
-        const internals = buildData.internal || [];
+        const hardpoints = modules.hardpoints || [];
+        const internals = modules.internal || [];
         let hasRefinery = false;
 
         console.log("=== Coriolis Import Start ===");
@@ -329,7 +329,7 @@ function handleCoriolisImport() {
             }
         });
 
-        if (!hasRefinery) {
+        if (!hasRefinery && refineryAlert) {
             refineryAlert.style.display = 'block';
             console.warn("No refinery found");
         }
