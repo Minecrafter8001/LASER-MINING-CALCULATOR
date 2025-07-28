@@ -276,7 +276,7 @@ function handleCoriolisImport() {
 
         // Lasers
         hardpoints.forEach((hp, idx) => {
-            if (!hp.enabled || !hp.group) return;
+            if (!hp || !hp.enabled || !hp.group) return;
             console.log(`Hardpoint ${idx}:`, hp.group, hp);
 
             if (hp.group === "Mining Laser") {
@@ -310,7 +310,7 @@ function handleCoriolisImport() {
                 console.log("Refinery found");
             } else if (group.includes("collector")) {
                 const classStr = mod.class.toString();
-                const cid = `collector-${classStr}${mod.rating.toLowerCase()}`;
+                const cid = `collector-${classStr}${"d"}`;
                 const select = document.getElementById(cid);
                 if (select) {
                     select.value = parseInt(select.value) + 1;
