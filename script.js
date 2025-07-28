@@ -226,6 +226,125 @@ function handleImport() {
     }
 }
 
+function handleCoriolisImport() {
+    const importText = document.getElementById('import-text-cor').value;
+    const refineryAlert = document.getElementById('refinery-alert');
+    if (!importText) {
+        alert("Please paste Coriolis export text first.");
+        return;
+    }
+
+    refineryAlert.style.display = 'none';
+    customPDStats = null;
+
+    try {
+        const buildData = JSON.parse(importText);
+        const modules = buildData.components;
+        const hardpoints = buildData.hardpoints || [];
+        const internals = buildData.internal || [];
+        let hasRefinery = false;
+
+        console.log("=== Coriolis Import Start ===");
+        console.log("Parsed build data:", buildData);
+
+        document.querySelectorAll('.laser-select, .collector-select').forEach(s => s.value = 0);
+
+        // Power distributor
+        const pd = modules.standard?.powerDistributor;
+        console.log("Power Distributor module:", pd);
+
+        if (pd) {
+            document.getElementById('pd-size').value = pd.class.toString();
+            document.getElementById('pd-grade').value = pd.rating;
+            if (pd.blueprint && pd.blueprint.fdname === "PowerDistributor_PriorityWeapons") {
+                const capMod = 1 + (pd.modifications?.wepcap || 0) / 10000;
+                const rechargeMod = 1 + (pd.modifications?.weprate || 0) / 10000;
+                const pdBase = powerDistributorStats[pd.class]?.[pd.rating];
+                console.log("PD base stats:", pdBase);
+                console.log("Cap mod:", capMod, "Recharge mod:", rechargeMod);
+                if (pdBase) {
+                    const cap = parseFloat((pdBase.cap * capMod).toFixed(3));
+                    const recharge = parseFloat((pdBase.recharge * rechargeMod).toFixed(3));
+                    customPDStats = { cap, recharge };
+                    document.getElementById('eng-type').value = 'Imported';
+                    console.log("Custom PD stats set:", customPDStats);
+                }
+            } else {
+                document.getElementById('eng-type').value = "None";
+                console.log("No engineering on PD");
+            }
+        }
+
+        // Lasers
+        hardpoints.forEach((hp, idx) => {
+            if (!hp.enabled || !hp.group) return;
+            console.log(`Hardpoint ${idx}:`, hp.group, hp);
+
+            if (hp.group === "Mining Laser") {
+                const key = (hp.class === 2) ? "laser-2d-ml"
+                        : hp.blueprint ? "laser-1d-modd"
+                        : "laser-1d-ml";
+                const select = document.getElementById(key);
+                if (select) {
+                    select.value = parseInt(select.value) + 1;
+                    console.log(`Incremented ${key}`);
+                }
+            } else if (hp.group === "Mining Laser (Lance)") {
+                const select = document.getElementById('laser-1d-lance');
+                if (select) {
+                    select.value = parseInt(select.value) + 1;
+                    console.log("Incremented laser-1d-lance");
+                }
+            }
+        });
+
+        // Collectors
+        internals.forEach((mod, idx) => {
+            if (!mod || !mod.group) return;
+            const group = mod.group.toLowerCase();
+            const id = mod.name?.toLowerCase();
+
+            console.log(`Internal ${idx}:`, group, id);
+
+            if (group === "refinery") {
+                hasRefinery = true;
+                console.log("Refinery found");
+            } else if (group.includes("collector")) {
+                const classStr = mod.class.toString();
+                const cid = `collector-${classStr}${mod.rating.toLowerCase()}`;
+                const select = document.getElementById(cid);
+                if (select) {
+                    select.value = parseInt(select.value) + 1;
+                    console.log(`Incremented ${cid}`);
+                } else {
+                    console.warn(`Unknown collector ID: ${cid}`);
+                }
+            } else if (group.includes("multi limpet")) {
+                if (id?.includes("universal")) {
+                    document.getElementById('collector-7a-uni').value = 1;
+                    console.log("Enabled collector-7a-uni");
+                } else {
+                    document.getElementById('collector-3c-multi').value = 1;
+                    console.log("Enabled collector-3c-multi");
+                }
+            }
+        });
+
+        if (!hasRefinery) {
+            refineryAlert.style.display = 'block';
+            console.warn("No refinery found");
+        }
+
+        updateCalculator();
+        alert("Coriolis build imported successfully!");
+        console.log("=== Coriolis Import End ===");
+    } catch (e) {
+        alert("Coriolis import failed. Please ensure you have pasted the full and unmodified JSON export.");
+        console.error("Coriolis import error:", e);
+    }
+}
+
+
 function setupEventListeners() {
     document.getElementById('toggle-import-btn').addEventListener('click', () => {
         const importSection = document.getElementById('import-section');
@@ -272,6 +391,7 @@ function setupEventListeners() {
     });
 
     document.getElementById('import-btn').addEventListener('click', handleImport);
+    document.getElementById('import-btn-cor').addEventListener('click', handleCoriolisImport);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
