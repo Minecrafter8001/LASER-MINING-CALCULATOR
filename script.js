@@ -219,14 +219,19 @@ function handleImport() {
 }
 
 function setupEventListeners() {
+    const importSection = document.getElementById('import-section');
+    const coriolisSection = document.getElementById('coriolis-section');
+
     document.getElementById('toggle-import-btn').addEventListener('click', () => {
-        document.getElementById('import-section').style.display = 'block';
-        document.getElementById('coriolis-section').style.display = 'none';
+        const isHidden = importSection.style.display === 'none' || importSection.style.display === '';
+        importSection.style.display = isHidden ? 'block' : 'none';
+        coriolisSection.style.display = 'none'; // Close other section
     });
     
     document.getElementById('toggle-coriolis-btn').addEventListener('click', () => {
-        document.getElementById('coriolis-section').style.display = 'block';
-        document.getElementById('import-section').style.display = 'none';
+        const isHidden = coriolisSection.style.display === 'none' || coriolisSection.style.display === '';
+        coriolisSection.style.display = isHidden ? 'block' : 'none';
+        importSection.style.display = 'none'; // Close other section
     });
     
     const multiLimpetInput = document.getElementById('collector-3c-multi');
