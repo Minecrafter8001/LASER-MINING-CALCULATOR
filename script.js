@@ -220,27 +220,15 @@ function handleImport() {
 
 function setupEventListeners() {
     document.getElementById('toggle-import-btn').addEventListener('click', () => {
-        const importSection = document.getElementById('import-section');
-        const isHidden = importSection.style.display === 'none' || importSection.style.display === '';
-        importSection.style.display = isHidden ? 'block' : 'none';
+        document.getElementById('import-section').style.display = 'block';
+        document.getElementById('coriolis-section').style.display = 'none';
     });
     
-    const modal = document.getElementById('image-modal');
-    const coriolisBtn = document.getElementById('coriolis-import-btn');
-    const closeModalSpan = document.querySelector('.close-modal');
-
-    coriolisBtn.addEventListener('click', () => {
-        modal.style.display = 'flex';
+    document.getElementById('toggle-coriolis-btn').addEventListener('click', () => {
+        document.getElementById('coriolis-section').style.display = 'block';
+        document.getElementById('import-section').style.display = 'none';
     });
-    closeModalSpan.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-    window.addEventListener('click', (event) => {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    });
-
+    
     const multiLimpetInput = document.getElementById('collector-3c-multi');
     const universalInput = document.getElementById('collector-7a-uni');
     function handleExclusiveCollectors(event) {
