@@ -64,6 +64,67 @@ function populateNumberSelect(elementId, max, defaultSelection = 0) {
     populateSelect(elementId, options, defaultSelection);
 }
 
+// Add these functions to handle saving and loading state
+function saveState() {
+    const state = {
+        pdSize: document.getElementById('pd-size').value,
+        pdGrade: document.getElementById('pd-grade').value,
+        engType: document.getElementById('eng-type').value,
+        engGrade: document.getElementById('eng-grade').value,
+        expEffect: document.getElementById('exp-effect').value,
+        zone: document.getElementById('zone-select').value,
+        prospector: document.getElementById('prospector-select').value,
+        lasers: {
+            'laser-1d-ml': document.getElementById('laser-1d-ml').value,
+            'laser-1d-lance': document.getElementById('laser-1d-lance').value,
+            'laser-1d-modd': document.getElementById('laser-1d-modd').value,
+            'laser-2d-ml': document.getElementById('laser-2d-ml').value
+        },
+        collectors: {
+            'collector-1d': document.getElementById('collector-1d').value,
+            'collector-3d': document.getElementById('collector-3d').value,
+            'collector-5d': document.getElementById('collector-5d').value,
+            'collector-7d': document.getElementById('collector-7d').value,
+            'collector-3c-multi': document.getElementById('collector-3c-multi').value,
+            'collector-7a-uni': document.getElementById('collector-7a-uni').value
+        }
+    };
+    localStorage.setItem('miningCalculatorState', JSON.stringify(state));
+}
+
+function loadState() {
+    const savedState = localStorage.getItem('miningCalculatorState');
+    if (!savedState) return false;
+    
+    try {
+        const state = JSON.parse(savedState);
+        
+        // Set basic selects
+        document.getElementById('pd-size').value = state.pdSize;
+        document.getElementById('pd-grade').value = state.pdGrade;
+        document.getElementById('eng-type').value = state.engType;
+        document.getElementById('eng-grade').value = state.engGrade;
+        document.getElementById('exp-effect').value = state.expEffect;
+        document.getElementById('zone-select').value = state.zone;
+        document.getElementById('prospector-select').value = state.prospector;
+        
+        // Set lasers
+        for (const [id, value] of Object.entries(state.lasers)) {
+            document.getElementById(id).value = value;
+        }
+        
+        // Set collectors
+        for (const [id, value] of Object.entries(state.collectors)) {
+            document.getElementById(id).value = value;
+        }
+        
+        return true;
+    } catch (e) {
+        console.error("Failed to load state:", e);
+        return false;
+    }
+}
+
 function updateCalculator(event) {
     const pdControlIds = ['pd-size', 'pd-grade', 'eng-type', 'eng-grade', 'exp-effect'];
     if (event && pdControlIds.includes(event.target.id)) {
@@ -151,6 +212,7 @@ function updateCalculator(event) {
     resultSpans.depletionPercent.textContent = depletionPercent;
     resultSpans.depletionTime.textContent = isFinite(depletionTime) ? depletionTime : "∞";
     resultSpans.marginFragments.textContent = isFinite(marginFragments) ? marginFragments : "∞";
+    saveState();
 }
 
 function handleImport() {
@@ -438,6 +500,7 @@ function importMenu(input) {
     mode = input;
 }
 
+
 function setupEventListeners() {
     
     document.getElementById('toggle-import-btn').addEventListener('click', () => {
@@ -529,7 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
     populateNumberSelect('collector-7d', 3);
     populateNumberSelect('collector-3c-multi', 1);
     populateNumberSelect('collector-7a-uni', 1);
-    
+    loadState();
     setupEventListeners();
     updateCalculator();
 });
