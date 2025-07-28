@@ -20,7 +20,7 @@ const engineeringMods = {
         "3": { cap_mod: 0.97, recharge_mod: 1.27 }, "4": { cap_mod: 0.96, recharge_mod: 1.36 },
         "5": { cap_mod: 0.95, recharge_mod: 1.45 }
     },
-    "Imported": { "0": { cap_mod: 1.0, recharge_mod: 1.0 } } // Renamed from Custom
+    "Imported": { "0": { cap_mod: 1.0, recharge_mod: 1.0 } }
 };
 const experimentalEffectMods = {
     "None":               { cap_mod: 1.0,  recharge_mod: 1.0 },
@@ -64,14 +64,13 @@ function populateNumberSelect(elementId, max, defaultSelection = 0) {
 
 const resultSpans = {
     cap: document.getElementById('wep-cap-result'), recharge: document.getElementById('wep-recharge-result'),
-    totalLimpets: document.getElementById('total-limpets-result'),
+    totalLimpets: document.getElementById('total-limpets-result'), totalLimpetsFinal: document.getElementById('total-limpets-result-final'),
     fragmentsPerRock: document.getElementById('fragments-per-rock'), totalDraw: document.getElementById('total-draw-result'),
     depletionPercent: document.getElementById('depletion-percent'), depletionTime: document.getElementById('depletion-time'),
     marginFragments: document.getElementById('margin-fragments'), pdStatus: document.getElementById('pd-status')
 };
 
 function updateCalculator(event) {
-    // --- NEW: Logic to revert from imported stats on manual change ---
     const pdControlIds = ['pd-size', 'pd-grade', 'eng-type', 'eng-grade', 'exp-effect'];
     if (event && pdControlIds.includes(event.target.id)) {
         customPDStats = null;
@@ -150,6 +149,7 @@ function updateCalculator(event) {
     resultSpans.cap.textContent = finalCapacity.toFixed(3);
     resultSpans.recharge.textContent = finalRecharge.toFixed(3);
     resultSpans.totalLimpets.textContent = totalLimpets;
+    resultSpans.totalLimpetsFinal.textContent = totalLimpets;
     resultSpans.fragmentsPerRock.textContent = fragmentYield.toFixed(2);
     resultSpans.totalDraw.textContent = totalDraw.toFixed(2) + " MW";
     resultSpans.depletionPercent.textContent = depletionPercent;
@@ -174,20 +174,13 @@ function handleImport() {
                 const parts = item.split("_");
                 const gradeMap = { "1": "E", "2": "D", "3": "C", "4": "B", "5": "A" };
                 const gradeNumber = parts[3].replace("class", "");
-                
                 document.getElementById('pd-size').value = parts[2].replace("size", "");
                 document.getElementById('pd-grade').value = gradeMap[gradeNumber] || 'A';
-
                 if (module.Engineering) {
                     const wepCapMod = module.Engineering.Modifiers.find(m => m.Label === 'WeaponsCapacity');
                     const wepRechargeMod = module.Engineering.Modifiers.find(m => m.Label === 'WeaponsRecharge');
-                    customPDStats = {
-                        cap: wepCapMod ? wepCapMod.Value : 0,
-                        recharge: wepRechargeMod ? wepRechargeMod.Value : 0
-                    };
+                    customPDStats = { cap: wepCapMod ? wepCapMod.Value : 0, recharge: wepRechargeMod ? wepRechargeMod.Value : 0 };
                     document.getElementById('eng-type').value = 'Imported';
-                    document.getElementById('eng-grade').value = '0';
-                    document.getElementById('exp-effect').value = 'None';
                 } else { 
                     document.getElementById('eng-type').value = "None";
                 }
@@ -226,6 +219,28 @@ function handleImport() {
 }
 
 function setupEventListeners() {
+    document.getElementById('toggle-import-btn').addEventListener('click', () => {
+        const importSection = document.getElementById('import-section');
+        const isHidden = importSection.style.display === 'none' || importSection.style.display === '';
+        importSection.style.display = isHidden ? 'block' : 'none';
+    });
+    
+    const modal = document.getElementById('image-modal');
+    const coriolisBtn = document.getElementById('coriolis-import-btn');
+    const closeModalSpan = document.querySelector('.close-modal');
+
+    coriolisBtn.addEventListener('click', () => {
+        modal.style.display = 'flex';
+    });
+    closeModalSpan.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+    window.addEventListener('click', (event) => {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    });
+
     const multiLimpetInput = document.getElementById('collector-3c-multi');
     const universalInput = document.getElementById('collector-7a-uni');
     function handleExclusiveCollectors(event) {
