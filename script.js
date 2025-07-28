@@ -42,6 +42,7 @@ const laserStats = {
     "laser-2d-ml": { draw: 3.0, frag_sec: 0.4183 }
 };
 let customPDStats = null;
+let resultSpans = {}; // Declare globally, define later
 
 function populateSelect(elementId, options, defaultSelection) {
     const select = document.getElementById(elementId);
@@ -62,16 +63,9 @@ function populateNumberSelect(elementId, max, defaultSelection = 0) {
     populateSelect(elementId, options, defaultSelection);
 }
 
-const resultSpans = {
-    cap: document.getElementById('wep-cap-result'), recharge: document.getElementById('wep-recharge-result'),
-    totalLimpets: document.getElementById('total-limpets-result'), totalLimpetsFinal: document.getElementById('total-limpets-result-final'),
-    fragmentsPerRock: document.getElementById('fragments-per-rock'), totalDraw: document.getElementById('total-draw-result'),
-    depletionPercent: document.getElementById('depletion-percent'), depletionTime: document.getElementById('depletion-time'),
-    marginFragments: document.getElementById('margin-fragments'), pdStatus: document.getElementById('pd-status')
-};
-
 function updateCalculator(event) {
     const pdControlIds = ['pd-size', 'pd-grade', 'eng-type', 'eng-grade', 'exp-effect'];
+    // FIX: Check if event exists before trying to access its properties
     if (event && pdControlIds.includes(event.target.id)) {
         customPDStats = null;
         if (document.getElementById('eng-type').value === 'Imported') {
@@ -151,7 +145,9 @@ function updateCalculator(event) {
     resultSpans.totalLimpets.textContent = totalLimpets;
     resultSpans.totalLimpetsFinal.textContent = totalLimpets;
     resultSpans.fragmentsPerRock.textContent = fragmentYield.toFixed(2);
+    resultSpans.fragmentsPerRockFinal.textContent = fragmentYield.toFixed(2);
     resultSpans.totalDraw.textContent = totalDraw.toFixed(2) + " MW";
+    resultSpans.fragGen.textContent = totalFragGen.toFixed(4);
     resultSpans.depletionPercent.textContent = depletionPercent;
     resultSpans.depletionTime.textContent = isFinite(depletionTime) ? depletionTime : "∞";
     resultSpans.marginFragments.textContent = isFinite(marginFragments) ? marginFragments : "∞";
@@ -159,17 +155,24 @@ function updateCalculator(event) {
 
 function handleImport() {
     const importText = document.getElementById('import-text').value;
+    const refineryAlert = document.getElementById('refinery-alert');
     if (!importText) { alert("Please paste EDSY SLEF export text first."); return; }
+    
+    refineryAlert.style.display = 'none';
     customPDStats = null;
     
     try {
         const buildData = JSON.parse(importText)[0].data;
         const modules = buildData.Modules;
+        let hasRefinery = false;
         
         document.querySelectorAll('.laser-select, .collector-select').forEach(s => s.value = 0);
         
         modules.forEach(module => {
             const item = module.Item;
+            if (item.includes("int_refinery")) {
+                hasRefinery = true;
+            }
             if (item.includes("int_powerdistributor")) {
                 const parts = item.split("_");
                 const gradeMap = { "1": "E", "2": "D", "3": "C", "4": "B", "5": "A" };
@@ -210,6 +213,11 @@ function handleImport() {
                  }
             }
         });
+
+        if (!hasRefinery) {
+            refineryAlert.style.display = 'block';
+        }
+
         updateCalculator();
         alert("Build imported successfully!");
     } catch (e) {
@@ -219,19 +227,20 @@ function handleImport() {
 }
 
 function setupEventListeners() {
-    const importSection = document.getElementById('import-section');
-    const coriolisSection = document.getElementById('coriolis-section');
-
     document.getElementById('toggle-import-btn').addEventListener('click', () => {
+        const importSection = document.getElementById('import-section');
+        const coriolisSection = document.getElementById('coriolis-section');
         const isHidden = importSection.style.display === 'none' || importSection.style.display === '';
         importSection.style.display = isHidden ? 'block' : 'none';
-        coriolisSection.style.display = 'none'; // Close other section
+        if (isHidden) coriolisSection.style.display = 'none';
     });
     
     document.getElementById('toggle-coriolis-btn').addEventListener('click', () => {
+        const importSection = document.getElementById('import-section');
+        const coriolisSection = document.getElementById('coriolis-section');
         const isHidden = coriolisSection.style.display === 'none' || coriolisSection.style.display === '';
         coriolisSection.style.display = isHidden ? 'block' : 'none';
-        importSection.style.display = 'none'; // Close other section
+        if (isHidden) importSection.style.display = 'none';
     });
     
     const multiLimpetInput = document.getElementById('collector-3c-multi');
@@ -266,9 +275,26 @@ function setupEventListeners() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    resultSpans = {
+        cap: document.getElementById('wep-cap-result'), recharge: document.getElementById('wep-recharge-result'),
+        totalLimpets: document.getElementById('total-limpets-result'), totalLimpetsFinal: document.getElementById('total-limpets-result-final'),
+        fragmentsPerRock: document.getElementById('fragments-per-rock'), fragmentsPerRockFinal: document.getElementById('fragments-per-rock-final'),
+        totalDraw: document.getElementById('total-draw-result'),
+        fragGen: document.getElementById('frag-gen-result'),
+        depletionPercent: document.getElementById('depletion-percent'), depletionTime: document.getElementById('depletion-time'),
+        marginFragments: document.getElementById('margin-fragments'), pdStatus: document.getElementById('pd-status')
+    };
+
     populateSelect('pd-size', [1, 2, 3, 4, 5, 6, 7, 8], 7);
     populateSelect('pd-grade', ['E', 'D', 'C', 'B', 'A', 'A Guardian'], 'A');
-    populateSelect('eng-type', ['None', 'Weapons Focused', 'Charge Enhanced', 'Imported']);
+    populateSelect('eng-type', ['None', 'Weapons Focused', 'Charge Enhanced']);
+    const engTypeSelect = document.getElementById('eng-type');
+    const importedOption = document.createElement('option');
+    importedOption.value = 'Imported';
+    importedOption.textContent = 'Imported';
+    importedOption.hidden = true;
+    engTypeSelect.appendChild(importedOption);
+    
     populateSelect('eng-grade', ['0', '1', '2', '3', '4', '5']);
     populateSelect('exp-effect', ['None', 'Cluster Capacitors', 'Super Conduits']);
     populateSelect('zone-select', ['NoRES', 'LoRES', 'RES', 'HiRES', 'HzRES']);
