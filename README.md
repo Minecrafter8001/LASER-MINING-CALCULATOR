@@ -1,2 +1,2 @@
-# LASER-MINING-CALCULATOr
+# LASER-MINING-CALCULATOR
 Mining ship Calculator
