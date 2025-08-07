@@ -2,10 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0; url=https://www.youtube.com/watch?v=dQw4w9WgXcQ" />
-  <title>Redirecting...</title>
+  <title>Loading index.html...</title>
+  <style>
+    /* Make iframe fill viewport */
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+  <script>
+    // Redirect after 5 seconds (5000ms)
+    setTimeout(function() {
+      window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    }, 5000);
+  </script>
 </head>
 <body>
-  <p>If you are not redirected automatically, <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">click here</a>.</p>
+  <iframe src="index.html" title="index.html content"></iframe>
 </body>
 </html>
